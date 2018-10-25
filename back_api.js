@@ -112,31 +112,26 @@ router.post('/back_manage/api/upload_avatar', (req, res, next) => {
   const form = new formidable.IncomingForm()
   form.encoding = 'utf-8'
   form.keepExtensions = true
-  form.uploadDir = path.join(__dirname, './public/resource')
+  form.uploadDir = path.join(__dirname, '/public/resource')
   form.maxFieldsSize = 1 * 1024 * 1024
-  form.parse(req, (err, fields, files) => {
+  form.parse(req, function(err, fields, files) {
     if (err) {
       return res.send({ result: 2, msg: '上传失败' })
     }
-    models.user.findById(fields.id, (err, doc) => {
+    models.user.findOne({ name: req.session.name }, (err, doc) => {
       if (err) {
         return res.send({ result: 2, msg: '系统异常' })
       }
       if (doc) {
         const imgPath = files.file.path
-        const imgData = fs.readFileSync(imgPath)
-        fs.writeFile(imgPath, imgData, err => {
+        models.user.update({ name: req.session.name }, { avatar: 'public/resource/' + path.basename(imgPath) }, (err) => {
           if (err) {
-            return res.send({ result: 2, msg: '上传失败' })
+            return res.send({ result: 2, msg: '更新失败' })
           }
-          models.user.update({ _id: fields.id }, { avatar: 'public/resource/' + path.basename(imgPath) }, (err) => {
-            if (err) {
-              return res.send({ result: 2, msg: '上传失败' })
-            }
-            return res.send({ result: 1, msg: '上传成功', url: 'public/resource/' + path.basename(imgPath) })
-          })
+          return res.send({ result: 1, msg: '上传成功', url: 'public/resource/' + path.basename(imgPath) })
         })
       }else{
+        console.log(fields)
         return res.send({ result: 2, msg: '未找到该用户' })
       }
     })
