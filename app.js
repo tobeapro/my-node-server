@@ -7,8 +7,9 @@ const frontApi = require('./front_api')
 const back_api = require('./back_api')
 const app = express()
 const port = 4000
-// 提交参数为任意类型
-app.use(bodyParser.urlencoded({extented: true}))
+
+app.use(bodyParser.json()); //数据JSON类型
+app.use(bodyParser.urlencoded({extented: true})) //解析post请求数据
 // 模板引擎
 app.set('view engine', 'html')
 // 静态资源目录

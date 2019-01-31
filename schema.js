@@ -16,6 +16,7 @@ const articleSchema = new mongoose.Schema({
   id: String,
   user_name: String,
   create_time: Date,
+  classify: String,  // 1.javascript,2.css,3.node 4.sql,4,其他
   update_time: Date,
   title: String,
   content: String,

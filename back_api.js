@@ -164,8 +164,15 @@ router.post('/back_manage/api/pwdUpdate', (req, res, next) => {
   })
 })
 // 获取文章列表
-router.get('/back_manage/api/articles', (req, res, next) => {
-  models.article.find({ user_name: req.session.name }, (err, data) => {
+router.post('/back_manage/api/articles', (req, res, next) => {
+   const queryTitle = new RegExp(req.body.title)
+   const queryClasify = new RegExp(req.body.classify)
+   models.article.find(
+    { 
+      user_name: req.session.name,
+      title: { $regex: queryTitle }, 
+      classify: { $regex: queryClasify }
+    }, (err, data) => {
     if (err) {
       res.send(err)
       next()
@@ -210,6 +217,7 @@ router.post('/back_manage/api/article/new', (req, res, next) => {
   const newArticle = models.article({
     user_name: req.session.name,
     title: req.body.title,
+    classify: req.body.classify,
     content: req.body.content,
     contentHtml: req.body.contentHtml,
     create_time: req.body.create_time,
