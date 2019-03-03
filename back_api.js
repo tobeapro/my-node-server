@@ -27,8 +27,7 @@ router.post('/back_manage/api/login', (req, res, next) => {
     password: req.body.password
   }, (err, data) => {
     if (err) {
-      res.send(err)
-      next()
+     return res.send(err)
     }
     if (data.length) {
       if (req.session.name === req.body.name) {
@@ -63,8 +62,7 @@ router.post('/back_manage/api/register', (req, res, next) => {
     name: req.body.name
   }, (err, data) => {
     if (err) {
-      res.send(err)
-      next()
+      return res.send(err)
     }
     if (data.length) {
       res.send({
@@ -93,8 +91,7 @@ router.post('/back_manage/api/register', (req, res, next) => {
 router.get('/back_manage/api/getInfo', (req, res, next) => {
   models.user.findOne({ name: req.session.name }, { password: 0 }, (err, data) => {
     if (err) {
-      res.send(err)
-      next()
+      return res.send(err)
     }
     if (data) {
       delete data.password
@@ -113,7 +110,7 @@ router.post('/back_manage/api/upload_avatar', (req, res, next) => {
   form.encoding = 'utf-8'
   form.keepExtensions = true
   form.uploadDir = path.join(__dirname, '/public/resource')
-  form.maxFieldsSize = 1 * 1024 * 1024
+  form.maxFieldsSize = 2 * 1024 * 1024
   form.parse(req, function(err, fields, files) {
     if (err) {
       return res.send({ result: 2, msg: '上传失败' })
@@ -124,11 +121,11 @@ router.post('/back_manage/api/upload_avatar', (req, res, next) => {
       }
       if (doc) {
         const imgPath = files.file.path
-        models.user.update({ name: req.session.name }, { avatar: 'public/resource/' + path.basename(imgPath) }, (err) => {
+        models.user.update({ name: req.session.name }, { avatar: '/public/resource/' + path.basename(imgPath) }, (err) => {
           if (err) {
             return res.send({ result: 2, msg: '更新失败' })
           }
-          return res.send({ result: 1, msg: '上传成功', url: 'public/resource/' + path.basename(imgPath) })
+          return res.send({ result: 1, msg: '上传成功', url: '/public/resource/' + path.basename(imgPath) })
         })
       }else{
         console.log(fields)
@@ -174,8 +171,7 @@ router.post('/back_manage/api/articles', (req, res, next) => {
       classify: { $regex: queryClasify }
     }, (err, data) => {
     if (err) {
-      res.send(err)
-      next()
+      return res.send(err)
     }
     if (data) {
       // delete data.password
@@ -197,19 +193,19 @@ router.post('/back_manage/api/upload_img', (req, res, next) => {
   form.maxFieldsSize = 2 * 1024 * 1024
   form.parse(req, (err, fields, files) => {
     if (err) {
-      res.send({ result: 2, msg: '上传失败' })
+      return  res.send({ result: 2, msg: '上传失败' })
     }
     const imgPath = files.file.path
     const imgData = fs.readFileSync(imgPath)
     fs.writeFile(imgPath, imgData, err => {
       if (err) {
-        res.send({ result: 2, msg: '上传失败' })
+        return res.send({ result: 2, msg: '上传失败' })
       }
-      res.send({ result: 1, msg: '上传成功', url: 'public/resource/' + path.basename(imgPath) })
+     return res.send({ result: 1, msg: '上传成功', url: '/public/resource/' + path.basename(imgPath) })
     })
   })
   form.on('error', err => {
-    res.send({ result: 2, msg: err })
+    return res.send({ result: 2, msg: err })
   })
 })
 // 添加文章
@@ -217,6 +213,7 @@ router.post('/back_manage/api/article/new', (req, res, next) => {
   const newArticle = models.article({
     user_name: req.session.name,
     title: req.body.title,
+    face_img: req.body.face_img,
     classify: req.body.classify,
     content: req.body.content,
     contentHtml: req.body.contentHtml,
@@ -225,7 +222,7 @@ router.post('/back_manage/api/article/new', (req, res, next) => {
   })
   newArticle.save(err => {
     if (err) {
-      res.send({ result: 2, msg: '保存失败' })
+      return res.send({ result: 2, msg: '保存失败' })
     }
     res.send({ result: 1, msg: '保存成功', data: newArticle })
   })
@@ -234,7 +231,7 @@ router.post('/back_manage/api/article/new', (req, res, next) => {
 router.get('/back_manage/api/article/detail', (req, res, next) => {
   models.article.findById(req.query.id, (err, doc) => {
     if (err) {
-      res.send({ result: 2, msg: '查看失败' })
+      return res.send({ result: 2, msg: '查看失败' })
     }
     if (doc) {
       res.send({ result: 1, data: doc })
@@ -245,9 +242,16 @@ router.get('/back_manage/api/article/detail', (req, res, next) => {
 })
 // 编辑文章
 router.post('/back_manage/api/article/update', (req, res, next) => {
-  models.article.update({ _id: req.body._id }, { title: req.body.title, content: req.body.content, contentHtml: req.body.contentHtml, update_time: req.body.update_time }, err => {
+  models.article.update({ _id: req.body._id }, { 
+    title: req.body.title, 
+    content: req.body.content,
+    classify: req.body.classify,
+    face_img: req.body.face_img,
+    contentHtml: req.body.contentHtml, 
+    update_time: req.body.update_time 
+  }, err => {
     if (err) {
-      res.send({ result: 2, msg: '更新失败' })
+      return res.send({ result: 2, msg: '更新失败' })
     }
     res.send({ result: 1, msg: '更新成功' })
   })
@@ -256,7 +260,7 @@ router.post('/back_manage/api/article/update', (req, res, next) => {
 router.get('/back_manage/api/article/delete', (req, res, next) => {
   models.article.remove({ _id: req.query.id }, err => {
     if (err) {
-      res.send({ result: 2, msg: '删除失败' })
+      return res.send({ result: 2, msg: '删除失败' })
     }
     res.send({ result: 1, msg: '删除成功' })
   })

@@ -15,9 +15,10 @@ const userSchema = new mongoose.Schema({
 const articleSchema = new mongoose.Schema({
   id: String,
   user_name: String,
-  create_time: Date,
+  face_img: String,
+  create_time: Number,
   classify: String,  // 1.javascript,2.css,3.node 4.sql,4,其他
-  update_time: Date,
+  update_time: Number,
   title: String,
   content: String,
   contentHtml: String
