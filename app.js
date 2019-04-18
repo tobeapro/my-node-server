@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 // const cookieParser = require('cookie-parser')
 const session = require('express-session')
+const history = require('connect-history-api-fallback')
 const path = require('path')
 const frontApi = require('./front_api')
 const back_api = require('./back_api')
@@ -10,6 +11,10 @@ const port = 4000
 
 app.use(bodyParser.json()); //数据JSON类型
 app.use(bodyParser.urlencoded({extented: true})) //解析post请求数据
+// history-router
+app.use(history({
+  index: '/index.html'
+}))
 // 模板引擎
 app.set('view engine', 'html')
 // 静态资源目录
