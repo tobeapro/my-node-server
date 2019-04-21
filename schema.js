@@ -20,8 +20,7 @@ const articleSchema = new mongoose.Schema({
   classify: String,  // 1.javascript,2.css,3.node 4.sql,4,其他
   update_time: Number,
   title: String,
-  content: String,
-  contentHtml: String
+  content: String
 })
 const newsSchema = new mongoose.Schema({
   title: String,

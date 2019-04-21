@@ -216,7 +216,6 @@ router.post('/back_manage/api/article/new', (req, res, next) => {
     face_img: req.body.face_img,
     classify: req.body.classify,
     content: req.body.content,
-    contentHtml: req.body.contentHtml,
     create_time: req.body.create_time,
     update_time: req.body.create_time
   })
@@ -247,7 +246,6 @@ router.post('/back_manage/api/article/update', (req, res, next) => {
     content: req.body.content,
     classify: req.body.classify,
     face_img: req.body.face_img,
-    contentHtml: req.body.contentHtml, 
     update_time: req.body.update_time 
   }, err => {
     if (err) {
