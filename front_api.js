@@ -24,7 +24,11 @@ router.post('/front_manage/api/getArticles',(req,res,next)=>{
 // 获取最近文章
 router.post('/front_manage/api/latestArticles',(req,res,next)=>{
 	const num = typeof(req.body.num)==='number'?req.body.num:5
-	models.article.find()
+	const tagReg = req.body.classify?new RegExp(req.body.classify):''
+	models.article.find({
+		user_name:req.body.name||'admin',
+		classify:{ $regex: tagReg }
+	})
 	.sort({ create_time: -1 })
 	.select('title')
 	.limit(num)

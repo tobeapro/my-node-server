@@ -7,7 +7,7 @@ const path = require('path')
 const frontApi = require('./front_api')
 const back_api = require('./back_api')
 const app = express()
-const port = 4000
+let port = 4000
 
 app.use(bodyParser.json()); //数据JSON类型
 app.use(bodyParser.urlencoded({extented: true})) //解析post请求数据
@@ -68,6 +68,9 @@ const allowRequest = function (req, res, next) {
 app.use(allowRequest)
 // 后台接口
 app.use(back_api)
+
+const arguments = process.argv.splice(2);
+arguments[0]&&(port = arguments[0]);
 
 app.listen(port, () => {
   console.log('listen on port:' + port)
