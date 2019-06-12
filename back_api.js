@@ -111,6 +111,7 @@ router.post('/back_manage/api/upload_avatar', (req, res, next) => {
   form.keepExtensions = true
   form.uploadDir = path.join(__dirname, '/public/resource')
   form.maxFieldsSize = 2 * 1024 * 1024
+  form.maxFileSize = 2 * 1024 * 1024
   form.parse(req, function(err, fields, files) {
     if (err) {
       return res.send({ result: 2, msg: '上传失败' })
@@ -128,13 +129,9 @@ router.post('/back_manage/api/upload_avatar', (req, res, next) => {
           return res.send({ result: 1, msg: '上传成功', url: '/public/resource/' + path.basename(imgPath) })
         })
       }else{
-        console.log(fields)
         return res.send({ result: 2, msg: '未找到该用户' })
       }
     })
-  })
-  form.on('error', err => {
-    res.send({ result: 2, msg: err })
   })
 })
 // 修改密码
@@ -191,21 +188,13 @@ router.post('/back_manage/api/upload_img', (req, res, next) => {
   form.keepExtensions = true
   form.uploadDir = path.join(__dirname, './public/resource')
   form.maxFieldsSize = 2 * 1024 * 1024
+  form.maxFileSize = 2 * 1024 * 1024
   form.parse(req, (err, fields, files) => {
     if (err) {
       return  res.send({ result: 2, msg: '上传失败' })
     }
     const imgPath = files.file.path
-    const imgData = fs.readFileSync(imgPath)
-    fs.writeFile(imgPath, imgData, err => {
-      if (err) {
-        return res.send({ result: 2, msg: '上传失败' })
-      }
-     return res.send({ result: 1, msg: '上传成功', url: '/public/resource/' + path.basename(imgPath) })
-    })
-  })
-  form.on('error', err => {
-    return res.send({ result: 2, msg: err })
+    return res.send({ result: 1, msg: '上传成功', url: '/public/resource/' + path.basename(imgPath) })
   })
 })
 // 添加文章
