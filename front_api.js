@@ -15,9 +15,9 @@ router.post('/front_manage/api/getArticles',(req,res,next)=>{
 			return res.send(err)
 		}
 		if(data){
-			res.send({result:1,data})
+			return res.send({result:1,data})
 		}else{
-			res.send({result:1,data:[]})
+			return res.send({result:1,data:[]})
 		}
 	})
 })
@@ -69,7 +69,7 @@ router.post('/front_manage/api/articleCount',(req,res,next)=>{
 				count:groupObj[key]
 			})
 		})
-		res.send({
+		return res.send({
 			result:1,
 			data:{
 				total,
@@ -90,9 +90,9 @@ router.post('/front_manage/api/airticleDetail',(req,res,next)=>{
 			return res.send(err)
 		}
 		if(data){
-			res.send({result:1,data})
+			return res.send({result:1,data})
 		}else{
-			res.send({result:2,msg:'文章不存在'})
+			return res.send({result:2,msg:'文章不存在'})
 		}
 	})
 })
@@ -103,9 +103,9 @@ router.post('/front_manage/api/getInfo',(req,res,next)=>{
 			return res.send(err)
 		}
 		if(data){
-			res.send({result:1,data:data})
+			return res.send({result:1,data:data})
 		}else{
-			res.send({result:1})
+			return res.send({result:1})
 		}
 	})
 })
@@ -116,9 +116,9 @@ router.get('/front_manage/api/getNews',(req,res,next)=>{
 			return res.send(err)
 		}
 		if(data){
-			res.send({result:1,data:data})
+			return res.send({result:1,data:data})
 		}else{
-			res.send({result:1,data:[]})
+			return res.send({result:1,data:[]})
 		}
 	})
 })

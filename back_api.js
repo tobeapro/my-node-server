@@ -18,7 +18,7 @@ router.get('/back_manage/api/captcha', (req, res, next) => {
     fontSize: 40
   })
   captcha.result = 1
-  res.send(captcha).end()
+  return res.send(captcha).end()
 })
 // 登陆
 router.post('/back_manage/api/login', (req, res, next) => {
@@ -36,15 +36,14 @@ router.post('/back_manage/api/login', (req, res, next) => {
           msg: '欢迎回来'
         }).end()
       } else {
-        // req.session.isLogin = true
         req.session.name = req.body.name
-        res.send({
+        return res.send({
           result: 1,
           msg: '登陆成功'
         }).end()
       }
     } else {
-      res.send({
+      return res.send({
         result: 2,
         msg: '账号或密码错误'
       }).end()
@@ -65,7 +64,7 @@ router.post('/back_manage/api/register', (req, res, next) => {
       return res.send(err)
     }
     if (data.length) {
-      res.send({
+      return res.send({
         result: 2,
         msg: '该账号已存在'
       }).end()
@@ -76,13 +75,13 @@ router.post('/back_manage/api/register', (req, res, next) => {
       }
       models.user(newUser).save()
         .then(() => {
-          res.send({
+          return res.send({
             result: 1,
             msg: '注册成功,请登录'
           }).end()
         })
         .catch(err => {
-          res.send(err)
+          return res.send(err)
         })
     }
   })
@@ -94,10 +93,9 @@ router.get('/back_manage/api/getInfo', (req, res, next) => {
       return res.send(err)
     }
     if (data) {
-      delete data.password
-      res.send({ result: 1, data: data })
+      return res.send({ result: 1, data: data })
     } else {
-      res.send({ result: 2, msg: '用户不存在' })
+      return res.send({ result: 2, msg: '用户不存在' })
     }
   })
 })
@@ -138,22 +136,21 @@ router.post('/back_manage/api/upload_avatar', (req, res, next) => {
 router.post('/back_manage/api/pwdUpdate', (req, res, next) => {
   models.user.findOne({ name: req.session.name }, (err, data) => {
     if (err) {
-      res.send(err)
-      next()
+      return res.send(err)
     }
     if (data) {
       if (data.password === req.body.oldPwd) {
         models.user.update({ _id: req.body.id }, { password: req.body.newPwd }, err => {
           if (err) {
-            res.send({ result: 2, msg: '更新失败' })
+            return res.send({ result: 2, msg: '更新失败' })
           }
-          res.send({ result: 1 })
+          return res.send({ result: 1 })
         })
       } else {
-        res.send({ result: 2, msg: '原密码输入有误' })
+        return res.send({ result: 2, msg: '原密码输入有误' })
       }
     } else {
-      res.send({ result: 2, msg: '该用户不存在' })
+      return res.send({ result: 2, msg: '该用户不存在' })
     }
   })
 })
@@ -171,9 +168,9 @@ router.post('/back_manage/api/articles', (req, res, next) => {
       return res.send(err)
     }
     if (data) {
-      res.send({ result: 1, data: data })
+      return res.send({ result: 1, data: data })
     } else {
-      res.send({ result: 1, data: [] })
+      return res.send({ result: 1, data: [] })
     }
   })
 })
@@ -212,7 +209,7 @@ router.post('/back_manage/api/article/new', (req, res, next) => {
     if (err) {
       return res.send({ result: 2, msg: '保存失败' })
     }
-    res.send({ result: 1, msg: '保存成功', data: newArticle })
+    return res.send({ result: 1, msg: '保存成功', data: newArticle })
   })
 })
 // 文章明细
@@ -224,9 +221,9 @@ router.get('/back_manage/api/article/detail', (req, res, next) => {
         return res.send({ result: 2, msg: '查看失败' })
       }
       if (doc) {
-        res.send({ result: 1, data: doc })
+        return res.send({ result: 1, data: doc })
       } else {
-        res.send({ result: 2, msg: '文章不存在' })
+        return res.send({ result: 2, msg: '文章不存在' })
       }
     })
 })
@@ -242,7 +239,7 @@ router.post('/back_manage/api/article/update', (req, res, next) => {
     if (err) {
       return res.send({ result: 2, msg: '更新失败' })
     }
-    res.send({ result: 1, msg: '更新成功' })
+    return res.send({ result: 1, msg: '更新成功' })
   })
 })
 // 删除文章
@@ -251,7 +248,7 @@ router.get('/back_manage/api/article/delete', (req, res, next) => {
     if (err) {
       return res.send({ result: 2, msg: '删除失败' })
     }
-    res.send({ result: 1, msg: '删除成功' })
+    return res.send({ result: 1, msg: '删除成功' })
   })
 })
 router.get('/back_manage/api/user/list', (req, res, next) => {
