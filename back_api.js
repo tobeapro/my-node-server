@@ -171,7 +171,6 @@ router.post('/back_manage/api/articles', (req, res, next) => {
       return res.send(err)
     }
     if (data) {
-      // delete data.password
       res.send({ result: 1, data: data })
     } else {
       res.send({ result: 1, data: [] })
@@ -199,14 +198,15 @@ router.post('/back_manage/api/upload_img', (req, res, next) => {
 })
 // 添加文章
 router.post('/back_manage/api/article/new', (req, res, next) => {
+  const currentTime = new Date().getTime()
   const newArticle = models.article({
     user_name: req.session.name,
     title: req.body.title,
     face_img: req.body.face_img,
     classify: req.body.classify,
     content: req.body.content,
-    create_time: req.body.create_time,
-    update_time: req.body.create_time
+    create_time: currentTime,
+    update_time: currentTime
   })
   newArticle.save(err => {
     if (err) {
@@ -217,16 +217,18 @@ router.post('/back_manage/api/article/new', (req, res, next) => {
 })
 // 文章明细
 router.get('/back_manage/api/article/detail', (req, res, next) => {
-  models.article.findById(req.query.id, (err, doc) => {
-    if (err) {
-      return res.send({ result: 2, msg: '查看失败' })
-    }
-    if (doc) {
-      res.send({ result: 1, data: doc })
-    } else {
-      res.send({ result: 2, msg: '文章不存在' })
-    }
-  })
+  models.article.findById(req.query.id)
+    .select('classify content face_img title')
+    .exec((err, doc) => {
+      if (err) {
+        return res.send({ result: 2, msg: '查看失败' })
+      }
+      if (doc) {
+        res.send({ result: 1, data: doc })
+      } else {
+        res.send({ result: 2, msg: '文章不存在' })
+      }
+    })
 })
 // 编辑文章
 router.post('/back_manage/api/article/update', (req, res, next) => {
@@ -235,7 +237,7 @@ router.post('/back_manage/api/article/update', (req, res, next) => {
     content: req.body.content,
     classify: req.body.classify,
     face_img: req.body.face_img,
-    update_time: req.body.update_time 
+    update_time: new Date().getTime() 
   }, err => {
     if (err) {
       return res.send({ result: 2, msg: '更新失败' })
@@ -252,5 +254,34 @@ router.get('/back_manage/api/article/delete', (req, res, next) => {
     res.send({ result: 1, msg: '删除成功' })
   })
 })
-
+router.get('/back_manage/api/user/list', (req, res, next) => {
+  models.user.find()
+  .select('name avatar')
+  .exec((err,data)=>{
+    if (err) {
+      return res.send({ result: 2, msg: '获取失败' })
+    }
+    return res.send({ result: 1, data:data||[], msg: '获取成功' })
+  })
+})
+// 删除用户
+router.post('/back_manage/api/user/delete', (req, res, next) => {
+  const authname = req.session.name
+  const username = req.body.name
+  if(username==='admin'){
+    return res.send({result:2,msg:'管理员账号不能删除'})
+  }else if(authname===username){
+    return res.send({result:2,msg:'不能删除自己的账号'})
+  }
+  models.user.deleteOne({name:username})
+  .exec((err,data)=>{
+    if(err){
+      return res.send({result:2,msg:'删除失败'})
+    }
+    if(data.ok===1&&data.deletedCount===1){
+      return res.send({result:1,msg:'删除成功'})
+    }
+    return res.send({result:2,msg:'该用户不存在'})
+  })
+})
 module.exports = router

@@ -17,7 +17,7 @@ const articleSchema = new mongoose.Schema({
   user_name: String,
   face_img: String,
   create_time: Number,
-  classify: String,  // 1.javascript,2.css,3.node 4.sql,4,其他
+  classify: String,
   update_time: Number,
   title: String,
   content: String
