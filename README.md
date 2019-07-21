@@ -1,12 +1,11 @@
-## 简易的node后台
-> express实现常用的功能接口
+## koa-ts重构博客服务端
+原始项目在分支 +[server@1.0](./server@1.0)
 #### 主要项目依赖
-+ express
-+ express-session,cookie身份鉴权在node中的实现
-+ formidable,后台解析文件上传
++ koa
++ koa-router
++ koa-session,cookie身份鉴权在node中的实现
++ koa-body 参数解析及文件上传
 + mongoose,node操作MongoDB的模型工具
-+ superagent,node的http请求模块
-+ cheerio,解析静态html页面
 #### 实现的功能
 + 登录,注销
 + 密码修改
@@ -14,4 +13,5 @@
 + 图片上传
 #### 项目使用
 + yarn install
-+ node app.js
++ yarn build
++ yarn dev

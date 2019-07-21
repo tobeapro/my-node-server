@@ -1,5 +1,5 @@
-const mongoose = require('mongoose')
-mongoose.connect('mongodb://localhost/backSystem')
+import * as mongoose from 'mongoose';
+mongoose.connect('mongodb://localhost/backSystem',{ useNewUrlParser: true })
 const db = mongoose.connection
 db.on('error', () => {
   console.log('database connect error')
@@ -33,4 +33,4 @@ const models = {
   article: mongoose.model('article', articleSchema),
   news: mongoose.model('news', newsSchema)
 }
-module.exports = models
+export default models;
