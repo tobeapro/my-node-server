@@ -1,5 +1,5 @@
-## koa-ts重构博客服务端
-原始项目在分支 [server@1.0](../../tree/server@1/0)
+## koa+ts重构博客服务端
+原始项目在分支 [server@1.0](../../tree/server@1.0)
 #### 主要项目依赖
 + koa
 + koa-router
