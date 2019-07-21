@@ -11,8 +11,10 @@ import backendApi from './src/api/backend.api';
 const app = new Koa();
 const router = new Router();
 
-app.use(koaStatic(path.join(__dirname,'./public')));
-app.use(koaStatic(path.join(__dirname,'./dist')));
+// app.use(koaStatic(path.join(__dirname,'./public'),{root:'/public'}));
+// app.use(koaStatic(path.join(__dirname,'./dist')));
+app.use(koaStatic(__dirname));
+
 
 app.use(koaBody({
     multipart:true, // 支持文件上传
@@ -81,15 +83,15 @@ const noNeedUrl = [
 const allowRequest = async function (ctx:any, next:any) {
     const requestPath = ctx.request.path
     if (requestPath.indexOf('front_manage') !== -1) {
-        return next()
+        return await next()
     }
-    for(let url of noNeedUrl) {
+    for(const url of noNeedUrl) {
       if(url === requestPath) {
-        return next()
+        return await next()
       }
     }
     if(ctx.session.name){
-        return next()
+        return await next()
     }else{
         return ctx.body = {result:0,msg:'未登录'}
     }
