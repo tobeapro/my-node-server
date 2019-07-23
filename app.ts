@@ -2,19 +2,30 @@ import * as Koa from 'koa';
 import * as Router from 'koa-router';
 import * as koaBody from 'koa-body';
 import * as path from 'path';
+import * as fs from 'fs';
 import * as session from 'koa-session';
 import * as koaStatic from 'koa-static';
 import * as net from 'net';
-const history = require('koa2-history-api-fallback');
+import { historyApiFallback } from 'koa2-connect-history-api-fallback';
 import frontendApi from './src/api/frontend.api';
 import backendApi from './src/api/backend.api';
 const app = new Koa();
 const router = new Router();
 
-// app.use(koaStatic(path.join(__dirname,'./public'),{root:'/public'}));
-// app.use(koaStatic(path.join(__dirname,'./dist')));
+app.use(koaStatic(path.join(__dirname,'./dist')));
+app.use(koaStatic(path.join(__dirname,'./public')));
 app.use(koaStatic(__dirname));
 
+// 首页
+router.get('/', ctx=>{
+    const index = fs.readFileSync(path.resolve(__dirname,'./dist/index.html'))
+    ctx.type = 'text/html'
+    ctx.body = index
+})
+// history
+app.use(historyApiFallback({
+    index:'/'
+}))
 
 app.use(koaBody({
     multipart:true, // 支持文件上传
@@ -51,13 +62,12 @@ app.use(async (ctx,next)=> {
     });
     await next();
 })
-app.use(history({
-    index: '/index.html'
-}))
+
 app.use(router.routes());
 app.use(frontendApi.routes());;
-app.keys = ['some secret hurr'];
 
+// 鉴权
+app.keys = ['some secret hurr'];
 const CONFIG = {
   key: 'koa:sess', /** (string) cookie key (default is koa:sess) */
   /** (number || 'session') maxAge in ms (default is 1 days) */
@@ -72,8 +82,6 @@ const CONFIG = {
   renew: false, /** (boolean) renew session when session is nearly expired, so we can always keep user logged in. (default is false)*/
 };
 app.use(session(CONFIG, app));
-
-// 鉴权
 const noNeedUrl = [
     '/back_manage/api/captcha',
     '/back_manage/api/login',
@@ -97,7 +105,8 @@ const allowRequest = async function (ctx:any, next:any) {
     }
 }
 app.use(allowRequest);
-app.use(backendApi.routes());;
+app.use(backendApi.routes());
+
 function portIsOccupied (port:number) {
     const server = net.createServer().listen(port)
     server.on('listening', function () { // 执行这块代码说明端口未被占用
