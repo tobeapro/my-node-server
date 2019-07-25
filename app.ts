@@ -11,7 +11,22 @@ import frontendApi from './src/api/frontend.api';
 import backendApi from './src/api/backend.api';
 const app = new Koa();
 const router = new Router();
+let port:number = 4000;
+const args:any[] = process.argv.splice(2);
+args[0]&&(port = args[0]);
 
+// 异常捕获
+const catchError = async (ctx:any, next:any) => {
+    try{
+        await next()
+    }catch(err){
+        ctx.status = err.statusCode || err.status || 500;
+        ctx.body = err.message
+    }
+}
+app.use(catchError)
+
+// 静态资源
 app.use(koaStatic(path.join(__dirname,'./dist')));
 app.use(koaStatic(path.join(__dirname,'./public')));
 app.use(koaStatic(__dirname));
@@ -22,11 +37,13 @@ router.get('/', ctx=>{
     ctx.type = 'text/html'
     ctx.body = index
 })
+
 // history
 app.use(historyApiFallback({
     index:'/'
 }))
 
+// 入参解析
 app.use(koaBody({
     multipart:true, // 支持文件上传
     encoding:'utf-8',
@@ -34,10 +51,29 @@ app.use(koaBody({
         multiples:false,
         uploadDir:path.join(__dirname,'./public/resource/'), // 设置文件上传目录
         keepExtensions: true,    // 保持文件的后缀
-        maxFieldsSize:2 * 1024 * 1024, // 文件上传大小
+        maxFileSize:3 * 1024 * 1024, // 文件上传大小
+        onFileBegin(name,file){
+            const fileName = file.name;
+            const picReg = /\.(png|jpe?g|gif|svg)$/i;
+            if(!picReg.test(fileName)){
+               return this._error('只能上传图片')
+            }
+        }
+    },
+    onError(err:any,ctx){
+        ctx.throw(err)
     }
 }));
-let port:number = 4000;
+
+
+app.use(async (ctx,next)=> {
+    ctx.accepts('html', 'json');
+    ctx.acceptsCharsets('utf-8');
+    ctx.set({
+        'Content-Type':'application/json;charset=utf-8'
+    });
+    await next();
+})
 
 // 配置CORS
 const allowCrossDomain = async (ctx:any, next:any)=> {   
@@ -54,14 +90,6 @@ const allowCrossDomain = async (ctx:any, next:any)=> {
     await next()
  }
 app.use(allowCrossDomain)
-app.use(async (ctx,next)=> {
-    ctx.accepts('html', 'json');
-    ctx.acceptsCharsets('utf-8');
-    ctx.set({
-        'Content-Type':'application/json;charset=utf-8'
-    });
-    await next();
-})
 
 app.use(router.routes());
 app.use(frontendApi.routes());;
