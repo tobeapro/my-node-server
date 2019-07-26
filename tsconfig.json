@@ -4,13 +4,12 @@
         "noImplicitAny": true,
         "removeComments": true,
         "preserveConstEnums": true,
-        "outDir": "outDir",
-        "sourceMap": true
+        "outDir": "outDir"
     },
     "files": [
         "app.ts"
     ],
-    "include": [
-        "public/**/*"
+    "exclude": [
+        "node_modules"
     ]
 }

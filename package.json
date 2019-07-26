@@ -1,11 +1,12 @@
 {
   "name": "blog-server-koa-ts",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.ts",
   "license": "MIT",
   "scripts": {
-    "dev": "tsc && node outDir/app.js",
-    "build": "tsc"
+    "dev": "nodemon --watch src --watch app.ts app.ts",
+    "build": "tsc && node copyStatic",
+    "source": "tsc --sourceMap && node copyStatic"
   },
   "dependencies": {
     "koa": "^2.7.0",
