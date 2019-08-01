@@ -28,9 +28,14 @@ const newsSchema = new mongoose.Schema({
   content: String,
   spider_time: String
 })
+const classifySchema = new mongoose.Schema({
+  name: String,
+  isFix: Number
+})
 const models = {
   user: mongoose.model('user', userSchema),
   article: mongoose.model('article', articleSchema),
-  news: mongoose.model('news', newsSchema)
+  news: mongoose.model('news', newsSchema),
+  classify: mongoose.model('classify', classifySchema)
 }
 export default models;

@@ -3,6 +3,7 @@ import models from '../schema';
 import * as svgCaptcha from 'svg-captcha';
 import * as path from 'path';
 import * as fs from 'fs';
+import { request } from 'https';
 const router = new Router();
 function returnErr(err:any){
 	return { result:0, data:err }
@@ -52,13 +53,19 @@ router.post('/back_manage/api/register',async (ctx, next) => {
     if (data.length) {
       ctx.body = { result:2, msg:'账号已存在' }
     } else {
-      let newUser:any = {
+      interface userObj {
+        name:string,
+        password:string
+      }
+      let newUser:userObj = {
         name: ctx.request.body.name,
         password: ctx.request.body.password
       }
-      const res = await (new models.user(newUser)).save()
+      const res = await models.user.create(newUser)
       if(res){
         ctx.body = { result:1, msg:'注册成功,请登录' }
+      }else{
+        ctx.body = { result:2, msg:'注册失败' }
       }
     }
   }catch(err){
@@ -214,6 +221,7 @@ router.get('/back_manage/api/article/delete',async (ctx, next) => {
     ctx.body = returnErr(err)
   }
 })
+// 用户列表
 router.get('/back_manage/api/user/list',async (ctx, next) => {
   try{
     const data = await models.user.find().select('name avatar')
@@ -226,7 +234,6 @@ router.get('/back_manage/api/user/list',async (ctx, next) => {
 router.post('/back_manage/api/user/delete',async (ctx, next) => {
   const authname = ctx.session.name
   const username = ctx.request.body.name
-  
   if(username==='admin'){
     return ctx.body = { result:2, msg:'管理员账号不能删除' }
   }else if(authname===username){
@@ -234,10 +241,116 @@ router.post('/back_manage/api/user/delete',async (ctx, next) => {
   }
   try{
     const data:any = await models.user.deleteOne({name:username})
-    if(data.ok===1&&data.deletedCount===1){
+    if(data.ok===1&&data.n===1){
       return ctx.body = { result:1, msg:'删除成功' }
     }
     ctx.body = { result:2, msg:'该用户不存在' }
+  }catch(err){
+    ctx.body = returnErr(err)
+  }
+})
+// 添加、编辑分类
+router.post('/back_manage/api/classify/operate',async (ctx, next) => {
+  try{
+    if(ctx.session.name!=='admin'){
+      return ctx.body = {
+        result: 2,
+        msg: '当前用户没有操作权限'
+      }
+    }
+    const reqBody = ctx.request.body
+    if(reqBody._id){
+      if(!reqBody.name||!reqBody.isFix){
+        return ctx.body = {
+          result: 2,
+          msg: '编辑分类的信息不完整'
+        }
+      }
+      const data = await models.classify.findOne({
+        name:reqBody.name,
+        _id:{$ne:reqBody._id}
+      })
+      if(data){
+        return ctx.body = {
+          result: 2,
+          msg: '该分类名称已存在'
+        }
+      }
+      const res = await models.classify.updateOne({_id:reqBody._id},{
+        name:reqBody.name,
+        isFix:reqBody.isFix
+      })
+      if(res){
+        return ctx.body = {
+          result: 1,
+          msg: '更新成功'
+        }
+      }
+      ctx.body = {
+        result: 2,
+        msg: '更新失败'
+      }
+    }else{
+      if(!reqBody.name||!reqBody.isFix){
+        return ctx.body = {
+          result: 2,
+          msg: '新增分类的信息不完整'
+        }
+      }
+      const data = await models.classify.findOne({name:reqBody.name})
+      if(data){
+        return ctx.body = {
+          result: 2,
+          msg: '该分类名称已存在'
+        }
+      }
+      interface classifyObj {
+        name: string;
+        isFix: number;
+      }
+      const newClassify:classifyObj = {
+        name: reqBody.name,
+        isFix: reqBody.isFix
+      }
+      const res = await models.classify.create(newClassify)
+      if(res){
+        ctx.body = { result:1 }
+      }else{
+        ctx.body = { result:2, msg:'新增失败' }
+      }
+    }
+  }catch(err){
+    ctx.body = returnErr(err)
+  }
+})
+// 删除分类
+router.post('/back_manage/api/classify/delete',async (ctx,next) => {
+  try{
+    if(ctx.session.name!=='admin'){
+      return ctx.body = {
+        result: 2,
+        msg: '当前用户没有删除权限'
+      }
+    }
+    const data = await models.classify.deleteOne({
+      _id:ctx.request.body.id,
+      isFix:{$ne:1}
+    })
+    if(data){
+      if(data.ok&&data.n){
+        return ctx.body = {
+          result:1
+        }
+      }
+      return ctx.body = {
+        result:2,
+        msg:'该分类不能删除'
+      }
+    }  
+    ctx.body = {
+      result:2,
+      msg:'删除失败'
+    }
   }catch(err){
     ctx.body = returnErr(err)
   }

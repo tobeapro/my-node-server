@@ -1,17 +1,15 @@
 import * as Router from 'koa-router';
 import models from '../schema';
-import { createContext } from 'vm';
 const router = new Router();
 function returnErr(err:any){
 	return { result:0, data:err }
 }
 // 获取文章
 router.post('/front_manage/api/getArticles',async (ctx, next)=>{
-	const tagReg = ctx.request.body.classify?new RegExp(ctx.request.body.classify):''
 	try{
 		const data = await models.article.find({
 			user_name:ctx.request.body.name||'admin',
-			classify:{ $regex: tagReg }
+			classify:{ $ne: ctx.request.body.noteqClassify||'' }
 		}).sort({ create_time: -1 })
 		.select('title create_time update_time classify face_img')
 		ctx.body = { result:1, data }
@@ -22,11 +20,10 @@ router.post('/front_manage/api/getArticles',async (ctx, next)=>{
 // 获取最近文章
 router.post('/front_manage/api/latestArticles',async (ctx,next)=>{
 	const num = typeof(ctx.request.body.num)==='number'?ctx.request.body.num:5
-	const tagReg = ctx.request.body.classify?new RegExp(ctx.request.body.classify):''
 	try{
 		const data = await models.article.find({
 			user_name:ctx.request.body.name||'admin',
-			classify:{ $regex: tagReg }
+			classify:{ $ne: ctx.request.body.noteqClassify||'' }
 		})
 		.sort({ create_time: -1 })
 		.select('title')
@@ -103,6 +100,15 @@ router.post('/front_manage/api/getInfo',async (ctx,next)=>{
 router.get('/front_manage/api/getNews',async (ctx,next)=>{
 	try{
 		const data = await models.news.find()
+		ctx.body = { result:1, data }
+	}catch(err){
+		ctx.body = returnErr(err)
+	}
+})
+// 获取分类列表
+router.post('/front_manage/api/classify/list', async (ctx,next)=>{
+	try{
+		const data = await models.classify.find().select('name isFix');
 		ctx.body = { result:1, data }
 	}catch(err){
 		ctx.body = returnErr(err)
