@@ -6,13 +6,45 @@ function returnErr(err:any){
 }
 // 获取文章
 router.post('/front_manage/api/getArticles',async (ctx, next)=>{
+	const username = ctx.request.body.name||'admin';
+	const queryClassify = new RegExp(ctx.request.body.classify||'');
+	const noteqClassify = ctx.request.body.noteqClassify||'';
+	interface pageOpt {
+		pageSize:number,
+		pageNo:number,
+		total:number
+	}
+	let pageOpt:pageOpt = ctx.request.body.pageOpt||{}
+	let pageSize,pageNo,total
+	if(pageOpt.pageSize){
+		pageSize = pageOpt.pageSize||5
+		pageNo = pageOpt.pageNo||1
+	}else{
+		pageSize = 100 //哈哈就算个小目标吧
+		pageNo = 1
+	}
 	try{
-		const data = await models.article.find({
-			user_name:ctx.request.body.name||'admin',
-			classify:{ $ne: ctx.request.body.noteqClassify||'' }
-		}).sort({ create_time: -1 })
+		total = await models.article.find({
+			user_name:username,
+		}).regex('classify',queryClassify)
+		.ne('classify',noteqClassify)
+		.count()
+		let data = await models.article.find({
+			user_name:username,
+		}).regex('classify',queryClassify)
+		.ne('classify',noteqClassify)
+		.sort({ create_time: -1 })
 		.select('title create_time update_time classify face_img')
-		ctx.body = { result:1, data }
+		.skip((pageNo-1)*pageSize).limit(pageSize)
+
+		ctx.body = { result:1, data:{
+			list:data,
+			pageOpt:{
+				pageSize,
+				pageNo,
+				total
+			}
+		}}
 	}catch(err){
 		ctx.body = returnErr(err)
 	}
