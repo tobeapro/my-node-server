@@ -12,9 +12,9 @@ import backendApi from './src/api/backend.api';
 const app = new Koa();
 const router = new Router();
 let port:number = 4000;
-const args:any[] = process.argv.splice(2);
+const args:any[] = process.argv.slice(2);
 args[0]&&(port = args[0]);
-
+const isProd = args[1]==='production'
 // 异常捕获
 const catchError = async (ctx:any, next:any) => {
     try{
@@ -88,8 +88,10 @@ const allowCrossDomain = async (ctx:any, next:any)=> {
         return ctx.status = 200
     }
     await next()
- }
-app.use(allowCrossDomain)
+}
+if(!isProd){
+    app.use(allowCrossDomain)
+}
 
 app.use(router.routes());
 app.use(frontendApi.routes());;

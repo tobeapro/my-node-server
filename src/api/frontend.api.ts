@@ -28,7 +28,7 @@ router.post('/front_manage/api/getArticles',async (ctx, next)=>{
 			user_name:username,
 		}).regex('classify',queryClassify)
 		.ne('classify',noteqClassify)
-		.count()
+		.countDocuments()
 		let data = await models.article.find({
 			user_name:username,
 		}).regex('classify',queryClassify)
