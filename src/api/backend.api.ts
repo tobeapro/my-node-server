@@ -3,7 +3,6 @@ import models from '../schema';
 import * as svgCaptcha from 'svg-captcha';
 import * as path from 'path';
 import * as fs from 'fs';
-import { request } from 'https';
 const router = new Router();
 function returnErr(err:any){
 	return { result:0, data:err }
@@ -142,7 +141,7 @@ router.post('/back_manage/api/articles',async (ctx, next) => {
        user_name: ctx.session.name,
        title: { $regex: queryTitle }, 
        classify: { $regex: queryClasify }
-     })
+     },"classify create_time title update_time")
      ctx.body = { result: 1, data: data||[] }
    }catch(err){
      ctx.body = returnErr(err)
