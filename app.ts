@@ -42,7 +42,16 @@ router.get('/', ctx=>{
 app.use(historyApiFallback({
     index:'/'
 }))
-
+// 定义上传文件名
+function generateUploadName(){
+   const _c = new Date();
+   const year = _c.getFullYear();
+   let month:number|string = _c.getMonth()+1;
+   month<10&&(month='0'+month);
+   let day:number|string = _c.getDay();
+   day<10&&(day='0'+day);
+   return `${year}${month}${day}_${+_c}`
+}
 // 入参解析
 app.use(koaBody({
     multipart:true, // 支持文件上传
@@ -57,6 +66,12 @@ app.use(koaBody({
             const picReg = /\.(png|jpe?g|gif|svg)$/i;
             if(!picReg.test(fileName)){
                return this._error('只能上传图片')
+            }else{
+                const extension = picReg.exec(fileName)[0];
+                // 覆盖原来的path属性
+                const newName = generateUploadName();
+                const fileDir = path.join(__dirname,'./public/resource/');
+                file.path = `${fileDir}/${newName}${extension}`;
             }
         }
     },
