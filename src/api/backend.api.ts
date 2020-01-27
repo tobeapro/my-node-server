@@ -354,4 +354,110 @@ router.post('/back_manage/api/classify/delete',async (ctx,next) => {
     ctx.body = returnErr(err)
   }
 })
+// 获取评论列表
+router.post('/back_manage/api/comment/list',async (ctx, next)=>{
+	const queryName = new RegExp(ctx.request.body.comment_name||'');
+  const queryContent = new RegExp(ctx.request.body.content||'');
+	interface pageOpt {
+		pageSize:number,
+		pageNo:number,
+		total:number
+	}
+	let pageOpt:pageOpt = ctx.request.body.pageOpt||{}
+	let pageSize,pageNo,total
+	if(pageOpt.pageSize){
+		pageSize = pageOpt.pageSize||10
+		pageNo = pageOpt.pageNo||1
+	}else{
+		pageSize = 10
+		pageNo = 1
+	}
+	try{
+    total = await models.comment.find()
+      .regex('comment_name',queryName)
+      .regex('content',queryContent)
+      .countDocuments()
+    let data = await models.comment.find()
+      .regex('comment_name',queryName)
+      .regex('content',queryContent)
+      .sort({'comment_time':-1})
+      .skip((pageNo-1)*pageSize).limit(pageSize)
+    
+		ctx.body = { result:1, data:{
+			list:data,
+			pageOpt:{
+				pageSize,
+				pageNo,
+				total
+			}
+		}}
+	}catch(err){
+		ctx.body = returnErr(err)
+	}
+})
+// 评论回复
+router.post('/back_manage/api/comment/edit', async (ctx, next) => {
+  try{
+    if(ctx.session.name!=='admin'){
+      return ctx.body = {
+        result: 2,
+        msg: '当前用户没有编辑权限'
+      }
+    }
+    const id = ctx.request.body.id;
+    const author_reply = (ctx.request.body.author_reply||'').trim();
+    if(!id){
+      return ctx.body = {
+        result:2
+      }
+    }
+    if(author_reply.length>200){
+      return ctx.body = {
+        result:2,
+        msg:'回复内容过长'
+      }
+    }
+    const data = await models.comment.updateOne({
+      _id:id
+    },{
+      author_reply
+    })
+    if(data){
+      return ctx.body = {
+        result:1,
+      }
+    }  
+    ctx.body = {
+      result:2,
+      msg:'编辑失败'
+    }
+  }catch(err){
+    ctx.body = returnErr(err)
+  }
+})
+// 删除评论
+router.post('/back_manage/api/comment/delete',async (ctx,next) => {
+  try{
+    if(ctx.session.name!=='admin'){
+      return ctx.body = {
+        result: 2,
+        msg: '当前用户没有删除权限'
+      }
+    }
+    const data = await models.comment.deleteOne({
+      _id:ctx.request.body.id,
+    })
+    if(data){
+      return ctx.body = {
+        result:1
+      }
+    }  
+    ctx.body = {
+      result:2,
+      msg:'删除失败'
+    }
+  }catch(err){
+    ctx.body = returnErr(err)
+  }
+})
 export default router

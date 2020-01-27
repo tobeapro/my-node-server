@@ -146,4 +146,60 @@ router.post('/front_manage/api/classify/list', async (ctx,next)=>{
 		ctx.body = returnErr(err)
 	}
 })
+// 获取文章评论列表
+router.post('/front_manage/api/article/commentList', async (ctx,next)=>{
+	try{
+		const article_id = ctx.request.body.article_id;
+		if(!article_id){
+			return ctx.body = { result:2, msg:'缺少关联的文章' }
+		}
+		const data = await models.comment.find({article_id}).sort({ comment_time: -1 });
+		ctx.body = { result:1, data }
+	}catch(err){
+		ctx.body = returnErr(err)
+	}
+})
+// 新增文章评论
+router.post('/front_manage/api/article/addComment', async (ctx,next)=>{
+	try{
+		const article_id = ctx.request.body.article_id;
+		if(!article_id){
+			return ctx.body = { result:2, msg:'缺少关联的文章' }
+		}
+		const length = await models.comment.find({article_id}).countDocuments()
+		if(length>=20){
+			return ctx.body = { 
+				result:2, 
+				msg:'每篇文章评论数上线为20' 
+			}
+		}
+		const comment_name = (ctx.request.body.comment_name||'').trim();
+		const comment_email = (ctx.request.body.comment_email||'').trim();
+		const content = (ctx.request.body.content||'').trim();
+		if(!comment_name||!comment_email||!content){
+			return ctx.body = { result:2, msg:'缺少必填字段' }
+		}
+		if(comment_name.length>20||comment_email.length>20||comment_name.content>200){
+			return ctx.body = { result:2, msg:'字段输入过长' }
+		}
+		const commentItem:any = {
+			article_id,
+			article_name:ctx.request.body.article_name||'',
+			comment_name,
+			comment_email,
+			content,
+			comment_time:new Date().getTime(),
+			author_reply:''
+		}
+		const newComment = new models.comment(commentItem);
+		const data = await newComment.save();
+		if(data){
+			ctx.body = { result: 1, msg: '评论成功', data: newComment }
+		  }else{
+			ctx.body = { result: 2, msg: '评论失败' }
+		  }
+	}catch(err){
+		ctx.body = returnErr(err)
+	}
+})
 export default router

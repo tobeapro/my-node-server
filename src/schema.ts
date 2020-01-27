@@ -32,10 +32,20 @@ const classifySchema = new mongoose.Schema({
   name: String,
   isFix: Number
 })
+const commentSchema = new mongoose.Schema({
+  article_id: Object,
+  article_name: String,
+  comment_time: Number,
+  comment_name: String,
+  comment_email: String,
+  content: String,
+  author_reply: String
+})
 const models = {
   user: mongoose.model('user', userSchema),
   article: mongoose.model('article', articleSchema),
   news: mongoose.model('news', newsSchema),
-  classify: mongoose.model('classify', classifySchema)
+  classify: mongoose.model('classify', classifySchema),
+  comment: mongoose.model('comment', commentSchema)
 }
 export default models;
