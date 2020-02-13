@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as session from 'koa-session';
 import * as koaStatic from 'koa-static';
+import * as compress from 'koa-compress';
 import * as net from 'net';
 import { historyApiFallback } from 'koa2-connect-history-api-fallback';
 import frontendApi from './src/api/frontend.api';
@@ -30,6 +31,9 @@ app.use(catchError)
 app.use(koaStatic(path.join(__dirname,'./dist')));
 app.use(koaStatic(path.join(__dirname,'./public')));
 app.use(koaStatic(__dirname));
+
+// 支持Gzip压缩
+app.use(compress());
 
 // 首页
 router.get('/', ctx=>{
