@@ -16,8 +16,8 @@ const copy = (from, to) => {
                     return console.error(err)
                 }
                 if(stats.isFile()){
-                    readable=fs.createReadStream(fromPath);
-                    writable=fs.createWriteStream(toPath);
+                    const readable=fs.createReadStream(fromPath);
+                    const writable=fs.createWriteStream(toPath);
                     readable.pipe(writable);
                 }else if(stats.isDirectory()){
                     copy(fromPath,toPath)
