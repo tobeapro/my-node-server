@@ -20,7 +20,7 @@ router.get('/back_manage/api/captcha', (ctx, next) => {
   ctx.body = captcha
 })
 // 登录
-router.post('/back_manage/api/login',async (ctx, next) => {
+router.post('/back_manage/api/login',async (ctx:any, next) => {
   try{
       const data = await models.user.findOne({
         name: ctx.request.body.name,
@@ -41,12 +41,12 @@ router.post('/back_manage/api/login',async (ctx, next) => {
   }
 })
 // 登出
-router.get('/back_manage/api/logout', (ctx, next) => {
+router.get('/back_manage/api/logout', (ctx:any, next) => {
   delete ctx.session.name
   ctx.body  = { result: 1 }
 })
 // 注册
-router.post('/back_manage/api/register',async (ctx, next) => {
+router.post('/back_manage/api/register',async (ctx:any, next) => {
   try{
     const data = await models.user.find({ name: ctx.request.body.name})
     if (data.length) {
@@ -72,7 +72,7 @@ router.post('/back_manage/api/register',async (ctx, next) => {
   }
 })
 // 用户详情
-router.get('/back_manage/api/getInfo',async (ctx, next) => {
+router.get('/back_manage/api/getInfo',async (ctx:any, next) => {
   try{
     const data = await models.user.findOne({ name: ctx.session.name }, { password: 0 })
       if (data) {
@@ -85,7 +85,7 @@ router.get('/back_manage/api/getInfo',async (ctx, next) => {
   }
 })
 // 上传头像
-router.post('/back_manage/api/upload_avatar',async (ctx, next) => {
+router.post('/back_manage/api/upload_avatar',async (ctx:any, next) => {
   if (!fs.existsSync(path.resolve(__dirname, '../../public/resource'))) {
     fs.mkdirSync(path.resolve(__dirname, '../../public/resource'))
   }
@@ -113,7 +113,7 @@ router.post('/back_manage/api/upload_avatar',async (ctx, next) => {
   }
 })
 // 修改密码
-router.post('/back_manage/api/pwdUpdate',async (ctx, next) => {
+router.post('/back_manage/api/pwdUpdate',async (ctx:any, next) => {
   try{
     const data:any = await models.user.findOne({ name: ctx.session.name })
     if(data) {
@@ -133,7 +133,7 @@ router.post('/back_manage/api/pwdUpdate',async (ctx, next) => {
   }
 })
 // 获取文章列表
-router.post('/back_manage/api/articles',async (ctx, next) => {
+router.post('/back_manage/api/articles',async (ctx:any, next) => {
    const queryTitle = new RegExp(ctx.request.body.title)
    const queryClasify = new RegExp(ctx.request.body.classify)
    try{
@@ -164,7 +164,7 @@ router.post('/back_manage/api/upload_img',async (ctx, next) => {
   }
 })
 // 添加文章
-router.post('/back_manage/api/article/new',async (ctx, next) => {
+router.post('/back_manage/api/article/new',async (ctx:any, next) => {
   const currentTime = new Date().getTime()
   let articleLive:any = {
     user_name: ctx.session.name,
@@ -230,7 +230,7 @@ router.get('/back_manage/api/user/list',async (ctx, next) => {
   }
 })
 // 删除用户
-router.post('/back_manage/api/user/delete',async (ctx, next) => {
+router.post('/back_manage/api/user/delete',async (ctx:any, next) => {
   const authname = ctx.session.name
   const username = ctx.request.body.name
   if(username==='admin'){
@@ -249,7 +249,7 @@ router.post('/back_manage/api/user/delete',async (ctx, next) => {
   }
 })
 // 添加、编辑分类
-router.post('/back_manage/api/classify/operate',async (ctx, next) => {
+router.post('/back_manage/api/classify/operate',async (ctx:any, next) => {
   try{
     if(ctx.session.name!=='admin'){
       return ctx.body = {
@@ -323,7 +323,7 @@ router.post('/back_manage/api/classify/operate',async (ctx, next) => {
   }
 })
 // 删除分类
-router.post('/back_manage/api/classify/delete',async (ctx,next) => {
+router.post('/back_manage/api/classify/delete',async (ctx:any,next) => {
   try{
     if(ctx.session.name!=='admin'){
       return ctx.body = {
@@ -396,7 +396,7 @@ router.post('/back_manage/api/comment/list',async (ctx, next)=>{
 	}
 })
 // 评论回复
-router.post('/back_manage/api/comment/edit', async (ctx, next) => {
+router.post('/back_manage/api/comment/edit', async (ctx:any, next) => {
   try{
     if(ctx.session.name!=='admin'){
       return ctx.body = {
@@ -436,7 +436,7 @@ router.post('/back_manage/api/comment/edit', async (ctx, next) => {
   }
 })
 // 删除评论
-router.post('/back_manage/api/comment/delete',async (ctx,next) => {
+router.post('/back_manage/api/comment/delete',async (ctx:any, next) => {
   try{
     if(ctx.session.name!=='admin'){
       return ctx.body = {
