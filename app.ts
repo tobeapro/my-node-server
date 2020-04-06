@@ -28,9 +28,27 @@ const catchError = async (ctx:any, next:any) => {
 app.use(catchError)
 
 // 静态资源
-app.use(koaStatic(path.join(__dirname,'./dist')));
-app.use(koaStatic(path.join(__dirname,'./public')));
-app.use(koaStatic(__dirname));
+app.use(koaStatic(path.join(__dirname,'./dist'),{
+    setHeaders:function(res,path,stats){
+        const staicRegex = /(\.css|\.js|\.png|\.jpe?g|\.svg|\.gz)$/
+        if(staicRegex.test(path)){
+            res.writeHead(200,{
+                'cache-control':'max-age=2592000'
+            })
+        }
+    }
+}));
+// app.use(koaStatic(path.join(__dirname,'./public')));
+app.use(koaStatic(__dirname,{
+    setHeaders:function(res,path,stats){
+        const staicRegex = /(\.css|\.js|\.png|\.jpe?g|\.svg|\.gz)$/
+        if(staicRegex.test(path)){
+            res.writeHead(200,{
+                'cache-control':'max-age=2592000'
+            })
+        }
+    }
+}));
 
 // 支持Gzip压缩
 app.use(compress());
