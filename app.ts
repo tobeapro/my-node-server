@@ -12,10 +12,8 @@ import frontendApi from './src/api/frontend.api';
 import backendApi from './src/api/backend.api';
 const app = new Koa();
 const router = new Router();
-let port:number = 4000;
-const args:any[] = process.argv.slice(2);
-args[0]&&(port = args[0]);
-const isProd = args[1]==='production'
+const isProd = process.env.NODE_ENV === 'production'
+const port:number = isProd ? 80 : 4000;
 // 异常捕获
 const catchError = async (ctx:any, next:any) => {
     try{
