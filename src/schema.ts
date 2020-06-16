@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-mongoose.connect('mongodb://localhost/backSystem',{ useNewUrlParser: true })
+mongoose.connect('mongodb://localhost/backSystem',{ useNewUrlParser: true, useUnifiedTopology:true })
 const db = mongoose.connection
 db.on('error', () => {
   console.log('database connect error')
