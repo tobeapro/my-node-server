@@ -13,7 +13,7 @@ import backendApi from './src/api/backend.api';
 const app = new Koa();
 const router = new Router();
 const isProd = process.env.NODE_ENV === 'production'
-const port:number = isProd ? 80 : 4000;
+const port:number = isProd ? 8080 : 4000;
 // 异常捕获
 const catchError = async (ctx:any, next:any) => {
     try{
@@ -25,18 +25,27 @@ const catchError = async (ctx:any, next:any) => {
 }
 app.use(catchError)
 
-// 静态资源
-app.use(koaStatic(path.join(__dirname,'./dist'),{
-    setHeaders:function(res,path,stats){
-        const staicRegex = /(\.css|\.js|\.png|\.jpe?g|\.svg|\.gz)$/
-        if(staicRegex.test(path)){
-            res.writeHead(200,{
-                'cache-control':'max-age=2592000'
-            })
+if(!isProd){
+    // 静态资源
+    app.use(koaStatic(path.join(__dirname,'./dist'),{
+        setHeaders:function(res,path,stats){
+            const staicRegex = /(\.css|\.js|\.png|\.jpe?g|\.svg|\.gz)$/
+            if(staicRegex.test(path)){
+                res.writeHead(200,{
+                    'cache-control':'max-age=2592000'
+                })
+            }
         }
-    }
-}));
-// app.use(koaStatic(path.join(__dirname,'./public')));
+    }));
+
+    // 首页
+    router.get('/', ctx=>{
+        const index = fs.readFileSync(path.resolve(__dirname,'./dist/index.html'))
+        ctx.type = 'text/html'
+        ctx.body = index
+    })
+}
+
 app.use(koaStatic(__dirname,{
     setHeaders:function(res,path,stats){
         const staicRegex = /(\.css|\.js|\.png|\.jpe?g|\.svg|\.gz)$/
@@ -51,12 +60,6 @@ app.use(koaStatic(__dirname,{
 // 支持Gzip压缩
 app.use(compress());
 
-// 首页
-router.get('/', ctx=>{
-    const index = fs.readFileSync(path.resolve(__dirname,'./dist/index.html'))
-    ctx.type = 'text/html'
-    ctx.body = index
-})
 
 // history
 app.use(historyApiFallback({
