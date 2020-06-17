@@ -15,9 +15,10 @@ jobs:
       run: yarn install && yarn build
 
     - name: Deploy
-      uses: TencentCloudBase/cloudbase-action@v1
+      uses: TencentCloudBase/cloudbase-action@v1.1.1
       with:
         secretId: ${{secrets.ACCESS_ID}}
-        secretKey: ${{secrets.ACCESS_KEY}}  
+        secretKey: ${{secrets.ACCESS_KEY}}
+        envId: ${{ secrets.ENV_ID }}
         staticSrcPath: outDir
         staticDestPath: home/blog-server/outDir
